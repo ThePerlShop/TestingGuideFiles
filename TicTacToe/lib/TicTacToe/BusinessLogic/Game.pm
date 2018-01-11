@@ -49,6 +49,23 @@ has board => (
 );
 
 
+=head1 METHODS
+
+=head2 move
+
+    $game->move($piece, $location)
+
+Place a piece on a location on the board.
+
+Does not return a value.
+
+=cut
+
+sub move {
+}
+
+
+
 __PACKAGE__->meta->make_immutable;
 
 1;
