@@ -45,6 +45,7 @@ However, normally this will be modified only by the L</move> method.
 
 has board => (
     is => 'rw',
+    default => sub { [ (' ') x 9 ] },
 );
 
 
