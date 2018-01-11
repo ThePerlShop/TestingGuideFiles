@@ -40,6 +40,22 @@ L<TicTacToe::BusinessLogic::Game>.
 =cut
 
 
+=head1 TESTS
+
+=head2 test_basic_construction
+
+Instantiates a new C<TicTacToe::BusinessLogic::Game> object, and
+verifies that constructor succeeds.
+
+=cut
+
+sub test_basic_construction : Test(1) {
+    my $test = shift;
+
+    ok( TicTacToe::BusinessLogic::Game->new() );
+}
+
+
 1;
 
 } # BEGIN
