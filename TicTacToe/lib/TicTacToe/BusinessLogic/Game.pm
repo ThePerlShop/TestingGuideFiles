@@ -25,6 +25,29 @@ of a Tic-Tac-Toe game.
 =cut
 
 
+=head1 ATTRIBUTES
+
+=head2 board
+
+The current state of the game board, an arrayref of nine positions, each
+' ', 'X', or 'O'.
+
+The board is conceptually arranged as three rows of three columns each
+(or three columns of three rows each), but represented as a flat array
+of nine spaces. (The calling code must decide how to display these
+spaces to the user, but regardless of whether they are displayed
+rows-first or columns-first, gameplay proceeds identically.)
+
+This attribute is read-write, and the underlying data can be written to.
+However, normally this will be modified only by the L</move> method.
+
+=cut
+
+has board => (
+    is => 'rw',
+);
+
+
 __PACKAGE__->meta->make_immutable;
 
 1;
