@@ -62,8 +62,11 @@ Does not return a value.
 =cut
 
 sub move {
-}
+    my $self = shift;
+    my ($piece, $location) = @_;
 
+    $self->board->[$location] = $piece;
+}
 
 
 __PACKAGE__->meta->make_immutable;
