@@ -67,6 +67,8 @@ sub move {
 
     die "move to invalid location: $location\n"
         unless $location < 9;
+    die "move to invalid location: $location\n"
+        unless $location >= 0;
 
     $self->board->[$location] = $piece;
 }
