@@ -1,6 +1,6 @@
 package <MOOSEROLE>;
 use 5.026;
-use Moose;
+use Moose::Role;
 use namespace::autoclean;
 
 with '<ROLE>';
