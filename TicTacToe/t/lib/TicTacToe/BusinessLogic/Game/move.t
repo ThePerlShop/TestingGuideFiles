@@ -95,6 +95,34 @@ sub test_move_invalid_location_9 : Test(2) {
 }
 
 
+=head2 test_move_invalid_location_negative_1
+
+Instantiates a new C<TicTacToe::BusinessLogic::Game> object, moves X to
+location -1, and verifies that the board state does not change and that
+the operation throws an "invalid location" error.
+
+=cut
+
+sub test_move_invalid_location_negative_1 : Test(2) {
+    my $test = shift;
+
+    my $game = TicTacToe::BusinessLogic::Game->new();
+
+    throws_ok {
+        $game->move('X', -1);
+    } qr/invalid location: -1/, 'invalid location thrown';
+
+    my $board = $game->board;
+    cmp_deeply(
+        $board,
+        [ ' ', ' ', ' ',
+          ' ', ' ', ' ',
+          ' ', ' ', ' ' ],
+        'game board unchanged',
+    );
+}
+
+
 1;
 
 } # BEGIN
