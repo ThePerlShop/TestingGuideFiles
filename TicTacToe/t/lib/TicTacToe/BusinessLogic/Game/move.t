@@ -18,6 +18,8 @@ use Test::Most;
 use Carp::Always;
 use Data::Dumper;
 
+use Readonly;
+
 
 # load code to be tested
 use TicTacToe::BusinessLogic::Game;
@@ -40,6 +42,21 @@ L<TicTacToe::BusinessLogic::Game>.
 =cut
 
 
+## Game board configurations for testing.
+
+# An empty board (initial state).
+Readonly::Array my @BOARD_EMPTY =>
+    ( ' ', ' ', ' ',
+      ' ', ' ', ' ',
+      ' ', ' ', ' ' );
+
+# A board with X in location 0
+Readonly::Array my @BOARD_X =>
+    ( 'X', ' ', ' ',
+      ' ', ' ', ' ',
+      ' ', ' ', ' ' );
+
+
 =head1 TESTS
 
 =head2 test_move_X_to_0
@@ -59,9 +76,7 @@ sub test_move_X_to_0 : Test(1) {
     my $board = $game->board;
     cmp_deeply(
         $board,
-        [ 'X', ' ', ' ',
-          ' ', ' ', ' ',
-          ' ', ' ', ' ' ],
+        \@BOARD_X,
         'game board with X at location 0',
     );
 }
@@ -87,9 +102,7 @@ sub test_move_invalid_location_9 : Test(2) {
     my $board = $game->board;
     cmp_deeply(
         $board,
-        [ ' ', ' ', ' ',
-          ' ', ' ', ' ',
-          ' ', ' ', ' ' ],
+        \@BOARD_EMPTY,
         'game board unchanged',
     );
 }
@@ -115,9 +128,7 @@ sub test_move_invalid_location_negative_1 : Test(2) {
     my $board = $game->board;
     cmp_deeply(
         $board,
-        [ ' ', ' ', ' ',
-          ' ', ' ', ' ',
-          ' ', ' ', ' ' ],
+        \@BOARD_EMPTY,
         'game board unchanged',
     );
 }
