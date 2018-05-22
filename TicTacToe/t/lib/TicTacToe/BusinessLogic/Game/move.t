@@ -56,6 +56,12 @@ Readonly::Array my @BOARD_X =>
       ' ', ' ', ' ',
       ' ', ' ', ' ' );
 
+# A board with X in location 0 and O in location 1
+Readonly::Array my @BOARD_XO =>
+    ( 'X', 'O', ' ',
+      ' ', ' ', ' ',
+      ' ', ' ', ' ' );
+
 
 ## Private functions and methods
 
@@ -91,6 +97,27 @@ sub test_move_X_to_0 : Test(1) {
     $game->move('X', 0);
 
     _cmp_board($game, \@BOARD_X, 'game board with X at location 0');
+}
+
+
+=head2 test_move_O_to_1
+
+Instantiates a new C<TicTacToe::BusinessLogic::Game> object with a board
+in which X is at location 0, moves O to location 1, and verifies that
+the final board state is as expected.
+
+=cut
+
+sub test_move_O_to_1 : Test(1) {
+    my $test = shift;
+
+    my $game = TicTacToe::BusinessLogic::Game->new(
+        board => [@BOARD_X],
+    );
+
+    $game->move('O', 1);
+
+    _cmp_board($game, \@BOARD_XO, 'game board with O added at location 1');
 }
 
 
