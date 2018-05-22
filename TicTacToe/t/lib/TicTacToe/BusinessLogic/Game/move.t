@@ -57,6 +57,23 @@ Readonly::Array my @BOARD_X =>
       ' ', ' ', ' ' );
 
 
+## Private functions and methods
+
+# Assert that a game's board matches the specified board configuration.
+sub _cmp_board {
+    my ($game, $board_configuration, $description) = @_;
+
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    my $board = $game->board;
+    cmp_deeply(
+        $board,
+        $board_configuration,
+        $description,
+    );
+}
+
+
 =head1 TESTS
 
 =head2 test_move_X_to_0
@@ -73,12 +90,7 @@ sub test_move_X_to_0 : Test(1) {
 
     $game->move('X', 0);
 
-    my $board = $game->board;
-    cmp_deeply(
-        $board,
-        \@BOARD_X,
-        'game board with X at location 0',
-    );
+    _cmp_board($game, \@BOARD_X, 'game board with X at location 0');
 }
 
 
@@ -99,12 +111,7 @@ sub test_move_invalid_location_9 : Test(2) {
         $game->move('X', 9);
     } qr/invalid location: 9/, 'invalid location thrown';
 
-    my $board = $game->board;
-    cmp_deeply(
-        $board,
-        \@BOARD_EMPTY,
-        'game board unchanged',
-    );
+    _cmp_board($game, \@BOARD_EMPTY, 'game board unchanged');
 }
 
 
@@ -125,12 +132,7 @@ sub test_move_invalid_location_negative_1 : Test(2) {
         $game->move('X', -1);
     } qr/invalid location: -1/, 'invalid location thrown';
 
-    my $board = $game->board;
-    cmp_deeply(
-        $board,
-        \@BOARD_EMPTY,
-        'game board unchanged',
-    );
+    _cmp_board($game, \@BOARD_EMPTY, 'game board unchanged');
 }
 
 
