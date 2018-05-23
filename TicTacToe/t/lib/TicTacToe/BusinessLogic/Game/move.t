@@ -62,6 +62,12 @@ Readonly::Array my @BOARD_XO =>
       ' ', ' ', ' ',
       ' ', ' ', ' ' );
 
+# A board in which X has won fair and square (empty spaces at 5 and 7)
+Readonly::Array my @BOARD_X_WINS =>
+    ( 'X', 'O', 'O',
+      'X', 'X', ' ',
+      'X', ' ', 'O' );
+
 
 ## Private functions and methods
 
@@ -142,13 +148,19 @@ Tests the following cases:
 =cut
 
 # One "test" per case in @cases.
-sub test_move_invalid : Test(2) {
+sub test_move_invalid : Test(8) {
     my $test = shift;
 
     my @cases = (
         # [$name, $initial_board, [$piece, $location], $error_regex],
         ['move to 9', \@BOARD_EMPTY, ['X', 9], qr/invalid location: 9/],
         ['move to -1', \@BOARD_EMPTY, ['X', -1], qr/invalid location: -1/],
+        ['piece is H', \@BOARD_EMPTY, ['H', 0], qr/invalid piece: H/],
+        ['move to occupied location', \@BOARD_X, ['O', 0], qr/already occupied by X/],
+        ['O moves first', \@BOARD_EMPTY, ['O', 2], qr/it's X's turn/],
+        ['X moves twice', \@BOARD_X, ['X', 1], qr/it's O's turn/],
+        ['O moves twice', \@BOARD_XO, ['O', 2], qr/it's X's turn/],
+        ['O moves after X won', \@BOARD_X_WINS, ['O', 5], qr/X already won/],
     );
 
     for my $case (@cases) {
