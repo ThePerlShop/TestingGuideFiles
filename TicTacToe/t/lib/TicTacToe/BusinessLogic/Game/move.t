@@ -121,45 +121,51 @@ sub test_move_O_to_1 : Test(1) {
 }
 
 
-=head2 test_move_invalid_location_9
+=head2 test_move_invalid
 
-Instantiates a new C<TicTacToe::BusinessLogic::Game> object, moves X to
-location 9, and verifies that the board state does not change and that
-the operation throws an "invalid location" error.
+Tests a number of invalid moves by instantiating a new
+C<TicTacToe::BusinessLogic::Game> object with the board in an
+appropriate state, attempting an invalid move, and verifying that the
+board state does not change and that the operation throws an appropriate
+error.
 
-=cut
+Tests the following cases:
 
-sub test_move_invalid_location_9 : Test(2) {
-    my $test = shift;
+=over
 
-    my $game = TicTacToe::BusinessLogic::Game->new();
+=item * Move to location 9
 
-    throws_ok {
-        $game->move('X', 9);
-    } qr/invalid location: 9/, 'invalid location thrown';
+=item * Move to location -1
 
-    _cmp_board($game, \@BOARD_EMPTY, 'game board unchanged');
-}
-
-
-=head2 test_move_invalid_location_negative_1
-
-Instantiates a new C<TicTacToe::BusinessLogic::Game> object, moves X to
-location -1, and verifies that the board state does not change and that
-the operation throws an "invalid location" error.
+=back
 
 =cut
 
-sub test_move_invalid_location_negative_1 : Test(2) {
+# One "test" per case in @cases.
+sub test_move_invalid : Test(2) {
     my $test = shift;
 
-    my $game = TicTacToe::BusinessLogic::Game->new();
+    my @cases = (
+        # [$name, $initial_board, [$piece, $location], $error_regex],
+        ['move to 9', \@BOARD_EMPTY, ['X', 9], qr/invalid location: 9/],
+        ['move to -1', \@BOARD_EMPTY, ['X', -1], qr/invalid location: -1/],
+    );
 
-    throws_ok {
-        $game->move('X', -1);
-    } qr/invalid location: -1/, 'invalid location thrown';
+    for my $case (@cases) {
+        my ($name, $initial_board, $move_args, $error_regex) = @$case;
 
-    _cmp_board($game, \@BOARD_EMPTY, 'game board unchanged');
+        subtest $name => sub {
+            my $game = TicTacToe::BusinessLogic::Game->new(
+                board => [@$initial_board],
+            );
+
+            throws_ok {
+                $game->move(@$move_args);
+            } $error_regex, "throws $error_regex";
+
+            _cmp_board($game, $initial_board, 'game board unchanged');
+        }
+    }
 }
 
 
