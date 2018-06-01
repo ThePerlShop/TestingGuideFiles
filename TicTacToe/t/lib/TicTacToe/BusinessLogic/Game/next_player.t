@@ -103,6 +103,27 @@ sub test_game_already_won : Test(1) {
 }
 
 
+=head2 test_game_draw
+
+Instantiates a new C<TicTacToe::BusinessLogic::Game> object with a board
+in which the game has ended without a winner, and verifies that
+C<next_player> returns C<undef>.
+
+=cut
+
+sub test_game_draw : Test(1) {
+    my $test = shift;
+
+    my $game = TicTacToe::BusinessLogic::Game->new(
+        board => [@BOARD_DRAW],
+    );
+
+    my $next_player = $game->next_player;
+
+    is($next_player, undef, 'no next player');
+}
+
+
 1;
 
 } # BEGIN
