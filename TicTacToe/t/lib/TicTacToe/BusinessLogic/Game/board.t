@@ -18,6 +18,8 @@ use Test::Most;
 use Carp::Always;
 use Data::Dumper;
 
+use t::lib::TicTacToe::BusinessLogic::Game::BoardConfigs qw(@BOARD_EMPTY);
+
 
 # load code to be tested
 use TicTacToe::BusinessLogic::Game;
@@ -59,9 +61,7 @@ sub test_board_initialized_blank : Test(1) {
 
     cmp_deeply(
         $board,
-        [ ' ', ' ', ' ',
-          ' ', ' ', ' ',
-          ' ', ' ', ' ' ],
+        \@BOARD_EMPTY,
         'blank game board',
     );
 }

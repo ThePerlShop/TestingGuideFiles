@@ -18,7 +18,7 @@ use Test::Most;
 use Carp::Always;
 use Data::Dumper;
 
-use Readonly;
+use t::lib::TicTacToe::BusinessLogic::Game::BoardConfigs qw(:moves);
 
 
 # load code to be tested
@@ -40,33 +40,6 @@ L<TicTacToe::BusinessLogic::Game>.
     TEST_METHOD=test_METHOD_NAME prove -lv t/lib/TicTacToe/BusinessLogic/Game/move.t
 
 =cut
-
-
-## Game board configurations for testing.
-
-# An empty board (initial state).
-Readonly::Array my @BOARD_EMPTY =>
-    ( ' ', ' ', ' ',
-      ' ', ' ', ' ',
-      ' ', ' ', ' ' );
-
-# A board with X in location 0
-Readonly::Array my @BOARD_X =>
-    ( 'X', ' ', ' ',
-      ' ', ' ', ' ',
-      ' ', ' ', ' ' );
-
-# A board with X in location 0 and O in location 1
-Readonly::Array my @BOARD_XO =>
-    ( 'X', 'O', ' ',
-      ' ', ' ', ' ',
-      ' ', ' ', ' ' );
-
-# A board in which X has won fair and square (empty spaces at 5 and 7)
-Readonly::Array my @BOARD_X_WINS =>
-    ( 'X', 'O', 'O',
-      'X', 'X', ' ',
-      'X', ' ', 'O' );
 
 
 ## Private functions and methods
@@ -160,7 +133,7 @@ sub test_move_invalid : Test(8) {
         ['O moves first', \@BOARD_EMPTY, ['O', 2], qr/it's X's turn/],
         ['X moves twice', \@BOARD_X, ['X', 1], qr/it's O's turn/],
         ['O moves twice', \@BOARD_XO, ['O', 2], qr/it's X's turn/],
-        ['O moves after X won', \@BOARD_X_WINS, ['O', 5], qr/X already won/],
+        ['O moves after X won', \@BOARD_X_WINS_COL_0, ['O', 5], qr/X already won/],
     );
 
     for my $case (@cases) {

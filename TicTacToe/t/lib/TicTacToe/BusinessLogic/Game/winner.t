@@ -18,7 +18,7 @@ use Test::Most;
 use Carp::Always;
 use Data::Dumper;
 
-use Readonly;
+use t::lib::TicTacToe::BusinessLogic::Game::BoardConfigs qw(:finished);
 
 
 # load code to be tested
@@ -40,63 +40,6 @@ L<TicTacToe::BusinessLogic::Game>.
     TEST_METHOD=test_METHOD_NAME prove -lv t/lib/TicTacToe/BusinessLogic/Game/winner.t
 
 =cut
-
-
-## Game board configurations for testing.
-
-# A board in which no one has won (and with no empty spaces)
-Readonly::Array my @BOARD_DRAW =>
-    ( 'X', 'O', 'X',
-      'X', 'O', 'O',
-      'O', 'X', 'X' );
-
-# A board in which X has won by filling column 0
-Readonly::Array my @BOARD_X_WINS_COL_0 =>
-    ( 'X', 'O', 'O',
-      'X', 'X', ' ',
-      'X', ' ', 'O' );
-
-# A board in which O has won by filling column 1
-Readonly::Array my @BOARD_O_WINS_COL_1 =>
-    ( 'X', 'O', 'X',
-      'X', 'O', ' ',
-      ' ', 'O', ' ' );
-
-# A board in which X has won by filling column 2
-Readonly::Array my @BOARD_X_WINS_COL_2 =>
-    ( ' ', 'O', 'X',
-      ' ', 'O', 'X',
-      ' ', ' ', 'X' );
-
-# A board in which X has won by filling row 0
-Readonly::Array my @BOARD_X_WINS_ROW_0 =>
-    ( 'X', 'X', 'X',
-      ' ', 'O', ' ',
-      'O', ' ', ' ' );
-
-# A board in which O has won by filling row 1
-Readonly::Array my @BOARD_O_WINS_ROW_1 =>
-    ( 'X', 'X', 'O',
-      'O', 'O', 'O',
-      'X', ' ', 'X' );
-
-# A board in which O has won by filling row 2
-Readonly::Array my @BOARD_O_WINS_ROW_2 =>
-    ( 'X', ' ', 'X',
-      ' ', 'X', ' ',
-      'O', 'O', 'O' );
-
-# A board in which X has won by filling diagonal upper-left to lower-right
-Readonly::Array my @BOARD_X_WINS_BACKSLASH =>
-    ( 'X', 'O', ' ',
-      ' ', 'X', 'O',
-      ' ', ' ', 'X' );
-
-# A board in which O has won by filling diagonal upper-right to lower-left
-Readonly::Array my @BOARD_O_WINS_SLASH =>
-    ( 'X', 'X', 'O',
-      'X', 'O', ' ',
-      'O', ' ', ' ' );
 
 
 =head1 TESTS

@@ -18,7 +18,7 @@ use Test::Most;
 use Carp::Always;
 use Data::Dumper;
 
-use Readonly;
+use t::lib::TicTacToe::BusinessLogic::Game::BoardConfigs qw(:moves);
 
 
 # load code to be tested
@@ -40,33 +40,6 @@ L<TicTacToe::BusinessLogic::Game>.
     TEST_METHOD=test_METHOD_NAME prove -lv t/lib/TicTacToe/BusinessLogic/Game/next_player.t
 
 =cut
-
-
-## Game board configurations for testing.
-
-# An empty board (initial state).
-Readonly::Array my @BOARD_EMPTY =>
-    ( ' ', ' ', ' ',
-      ' ', ' ', ' ',
-      ' ', ' ', ' ' );
-
-# A board with X in location 0
-Readonly::Array my @BOARD_X =>
-    ( 'X', ' ', ' ',
-      ' ', ' ', ' ',
-      ' ', ' ', ' ' );
-
-# A board with X in location 0 and O in location 1
-Readonly::Array my @BOARD_XO =>
-    ( 'X', 'O', ' ',
-      ' ', ' ', ' ',
-      ' ', ' ', ' ' );
-
-# A board in which X has won fair and square (empty spaces at 5 and 7)
-Readonly::Array my @BOARD_X_WINS =>
-    ( 'X', 'O', 'O',
-      'X', 'X', ' ',
-      'X', ' ', 'O' );
 
 
 =head1 TESTS
@@ -121,7 +94,7 @@ sub test_game_already_won : Test(1) {
     my $test = shift;
 
     my $game = TicTacToe::BusinessLogic::Game->new(
-        board => [@BOARD_X_WINS],
+        board => [@BOARD_X_WINS_COL_0],
     );
 
     my $next_player = $game->next_player;
