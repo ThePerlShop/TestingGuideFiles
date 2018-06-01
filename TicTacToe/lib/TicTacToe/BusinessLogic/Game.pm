@@ -128,6 +128,7 @@ sub next_player {
     my %num_on_board = (X => 0, O => 0, ' ' => 0);
     $num_on_board{$_}++ for @$board;
 
+    return undef unless $num_on_board{' '} > 0;
     return ( $num_on_board{X} > $num_on_board{O} ) ? 'O' : 'X';
 }
 
