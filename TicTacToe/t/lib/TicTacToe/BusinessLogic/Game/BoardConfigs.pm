@@ -8,10 +8,12 @@ use parent 'Exporter';
 our @EXPORT = qw();
 
 our @EXPORT_OK = qw(
-    @BOARD_EMPTY @BOARD_X @BOARD_XO @BOARD_DRAW
-    @BOARD_X_WINS_COL_0 @BOARD_O_WINS_COL_1 @BOARD_X_WINS_COL_2
-    @BOARD_X_WINS_ROW_0 @BOARD_O_WINS_ROW_1 @BOARD_O_WINS_ROW_2
-    @BOARD_X_WINS_BACKSLASH @BOARD_O_WINS_SLASH
+    @BOARD_EMPTY @BOARD_X @BOARD_XO @BOARD_DRAW @BOARD_X_WINS_COL_0
+    @BOARD_O_WINS_COL_1 @BOARD_X_WINS_COL_2 @BOARD_X_WINS_ROW_0
+    @BOARD_O_WINS_ROW_1 @BOARD_O_WINS_ROW_2 @BOARD_X_WINS_BACKSLASH
+    @BOARD_O_WINS_SLASH @BOARD_INVALID_SHORT_ARRAY
+    @BOARD_INVALID_LONG_ARRAY @BOARD_INVALID_WRONG_PIECE
+    @BOARD_INVALID_TOO_MANY_X @BOARD_INVALID_TOO_MANY_O
 );
 
 our %EXPORT_TAGS = (
@@ -23,6 +25,11 @@ our %EXPORT_TAGS = (
         @BOARD_X_WINS_COL_0 @BOARD_O_WINS_COL_1 @BOARD_X_WINS_COL_2
         @BOARD_X_WINS_ROW_0 @BOARD_O_WINS_ROW_1 @BOARD_O_WINS_ROW_2
         @BOARD_X_WINS_BACKSLASH @BOARD_O_WINS_SLASH
+    )],
+    invalid => [qw(
+        @BOARD_INVALID_SHORT_ARRAY @BOARD_INVALID_LONG_ARRAY
+        @BOARD_INVALID_WRONG_PIECE @BOARD_INVALID_TOO_MANY_X
+        @BOARD_INVALID_TOO_MANY_O
     )],
 );
 
@@ -240,6 +247,70 @@ Readonly::Array our @BOARD_O_WINS_SLASH =>
     ( 'X', 'X', 'O',
       'X', 'O', ' ',
       'O', ' ', ' ' );
+
+
+=head1 INVALID BOARDS 
+
+=head2 @BOARD_INVALID_SHORT_ARRAY
+
+A board array with only 8 spaces, one too few.
+
+=cut
+
+Readonly::Array our @BOARD_INVALID_SHORT_ARRAY =>
+    ( ' ', ' ', ' ',
+      ' ', ' ', ' ',
+      ' ', ' ' );
+
+
+=head2 @BOARD_INVALID_LONG_ARRAY
+
+A board array with 10 spaces, one too many.
+
+=cut
+
+Readonly::Array our @BOARD_INVALID_LONG_ARRAY =>
+    ( ' ', ' ', ' ',
+      ' ', ' ', ' ',
+      ' ', ' ', ' ', ' ' );
+
+
+=head2 @BOARD_INVALID_WRONG_PIECE
+
+A board with an 'A', an invalid piece, in location 0.
+
+=cut
+
+Readonly::Array our @BOARD_INVALID_WRONG_PIECE =>
+    ( 'A', ' ', ' ',
+      ' ', ' ', ' ',
+      ' ', ' ', ' ' );
+
+
+=head2 @BOARD_INVALID_TOO_MANY_X
+
+A board with 4 X's but only 2 O's, in which X has moved once too many
+turns.
+
+=cut
+
+Readonly::Array our @BOARD_INVALID_TOO_MANY_X =>
+    ( 'X', 'O', 'X',
+      'O', 'X', 'X',
+      ' ', ' ', ' ' );
+
+
+=head2 @BOARD_INVALID_TOO_MANY_O
+
+A board with 3 O's but only 2 X's, in which O has moved once too many
+turns.
+
+=cut
+
+Readonly::Array our @BOARD_INVALID_TOO_MANY_O =>
+    ( 'X', 'O', 'X',
+      'O', 'O', ' ',
+      ' ', ' ', ' ' );
 
 
 1;
