@@ -3,6 +3,8 @@ use 5.026;
 use Moose;
 use namespace::autoclean;
 
+use Carp qw(croak);
+
 
 =head1 NAME
 
@@ -22,7 +24,72 @@ of a Tic-Tac-Toe game.
 
     my $winner = $game->winner; # 'X', 'O', or undef
 
+=cut 
+
+
+## Private methods and functions
+
+# Counts the number of each piece on the board and returns a hashref
+# mapping each piece to its number of occurrences.
+sub _piece_counts {
+    my $board = shift;
+    my %piece_counts = (X => 0, O => 0, ' ' => 0);
+    $piece_counts{$_}++ for @$board;
+    return \%piece_counts;
+}
+
+
+# Return an appropriate error message if the board is invalid.
+# Otherwise, returns false.
+sub _is_invalid_board {
+    my $board = shift;
+
+    return "value is not an arrayref"
+        unless ref $board eq 'ARRAY';
+
+    return "arrayref does not have exactly 9 items"
+        unless @$board == 9;
+
+    my $piece_counts = _piece_counts($board);
+
+    return "'$_' is an invalid player piece"
+        for grep { m/[^XO ]/i } keys %$piece_counts;
+
+    return "'X' has moved out of turn"
+        if $piece_counts->{X} - $piece_counts->{O} > 1;
+
+    return "'O' has moved out of turn"
+        if $piece_counts->{O} - $piece_counts->{X} > 0;
+
+    return ();
+}
+
+
+# If all the of elements passed in are all 'X' or 'O', return that string.
+# Otherwise return undef.
+sub _winning_seq {
+    my $first = shift;
+    return undef unless $first eq 'X' || $first eq 'O';
+    while (@_) {
+        return undef unless shift eq $first;
+    }
+    return $first;
+}
+
+
+=head1 CONSTRUCTOR
+
+=head2 new
+
+Starts a new game, with the board initialized to blank. (See L</board>.)
+
+An initial board state may be specified as a Moose attribute
+initializer. Such a board state must be valid, or else the constructor
+will die with an appropriate error message.
+
 =cut
+
+# The new() method is inherited from Moose::Object
 
 
 =head1 ATTRIBUTES
@@ -47,6 +114,21 @@ has board => (
     is => 'rw',
     default => sub { [ (' ') x 9 ] },
 );
+
+
+around BUILDARGS => sub {
+    my $orig  = shift;
+    my $class = shift;
+
+    my $args = $class->$orig(@_);
+
+    if (exists $args->{board}) {
+        my $error_message = _is_invalid_board($args->{board});
+        croak "'board': $error_message" if $error_message;
+    }
+
+    return $args;
+};
 
 
 =head1 METHODS
@@ -89,20 +171,20 @@ sub move {
 
     my $board = $self->board;
 
-    die "move to invalid location: $location\n"
+    croak "move to invalid location: $location\n"
         unless $location >= 0 && $location < 9;
 
-    die "move of invalid piece: $piece\n"
+    croak "move of invalid piece: $piece\n"
         unless $piece eq 'X' || $piece eq 'O';
 
-    die "location $location is already occupied by $board->[$location]\n"
+    croak "location $location is already occupied by $board->[$location]\n"
         unless $board->[$location] eq ' ';
 
     my $winner = $self->winner;
-    die "$winner already won" if $winner;
+    croak "$winner already won" if $winner;
 
     my $next_player = $self->next_player;
-    die "$piece attempted to move, but it's ${next_player}'s turn\n"
+    croak "$piece attempted to move, but it's ${next_player}'s turn\n"
         unless $piece eq $next_player;
 
     $board->[$location] = $piece;
@@ -125,11 +207,10 @@ sub next_player {
 
     my $board = $self->board;
 
-    my %num_on_board = (X => 0, O => 0, ' ' => 0);
-    $num_on_board{$_}++ for @$board;
+    my $piece_counts = _piece_counts($board);
 
-    return undef unless $num_on_board{' '} > 0;
-    return ( $num_on_board{X} > $num_on_board{O} ) ? 'O' : 'X';
+    return undef unless $piece_counts->{' '} > 0;
+    return ( $piece_counts->{X} > $piece_counts->{O} ) ? 'O' : 'X';
 }
 
 
@@ -164,18 +245,6 @@ sub winner {
     }
 
     return undef;
-}
-
-
-# If all the of elements passed in are all 'X' or 'O', return that string.
-# Otherwise return undef.
-sub _winning_seq {
-    my $first = shift;
-    return undef unless $first eq 'X' || $first eq 'O';
-    while (@_) {
-        return undef unless shift eq $first;
-    }
-    return $first;
 }
 
 
