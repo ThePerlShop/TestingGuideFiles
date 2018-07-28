@@ -66,12 +66,12 @@ sub _is_invalid_board {
 
 
 # If all the of elements passed in are all 'X' or 'O', return that string.
-# Otherwise return undef.
+# Otherwise return undef (an explicit undef, not an empty list).
 sub _winning_seq {
     my $first = shift;
-    return undef unless $first eq 'X' || $first eq 'O';
+    return (undef) unless $first eq 'X' || $first eq 'O';
     while (@_) {
-        return undef unless shift eq $first;
+        return (undef) unless shift eq $first;
     }
     return $first;
 }
@@ -203,13 +203,13 @@ C<undef> if the game has been won.
 sub next_player {
     my $self = shift;
 
-    return undef if $self->winner;
+    return (undef) if $self->winner;
 
     my $board = $self->board;
 
     my $piece_counts = _piece_counts($board);
 
-    return undef unless $piece_counts->{' '} > 0;
+    return (undef) unless $piece_counts->{' '} > 0;
     return ( $piece_counts->{X} > $piece_counts->{O} ) ? 'O' : 'X';
 }
 
@@ -244,7 +244,7 @@ sub winner {
         return $winner if $winner;
     }
 
-    return undef;
+    return (undef);
 }
 
 
