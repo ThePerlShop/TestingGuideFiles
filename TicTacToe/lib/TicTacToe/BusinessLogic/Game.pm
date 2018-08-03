@@ -4,6 +4,7 @@ use Moose;
 use namespace::autoclean;
 
 use Carp qw(croak);
+use Scalar::Util qw(blessed);
 
 
 =head1 NAME
@@ -16,6 +17,9 @@ of a Tic-Tac-Toe game.
     use TicTacToe::BusinessLogic::Game;
 
     my $game = TicTacToe::BusinessLogic::Game->new();
+    my $id = $game->id;
+
+    $game = TicTacToe::BusinessLogic::Game->new(id => $id);
 
     $game->move('X', 0); # puts an 'X' in slot 0 of the board
 
@@ -77,15 +81,30 @@ sub _winning_seq {
 }
 
 
+## Private attributes.
+
+# The game DBIC "row" object.
+has _game_row => (
+    is => 'ro',
+);
+
+
+
 =head1 CONSTRUCTOR
 
 =head2 new
 
-Starts a new game, with the board initialized to blank. (See L</board>.)
+Starts a new game or continues an existing game.
 
-An initial board state may be specified as a Moose attribute
+By default, starts a new game with the board initialized to blank. (See
+L</board>.) But if L</id> is specified, then that game is loaded from the
+data model and continued.
+
+An initial L</board> state may be specified as a Moose attribute
 initializer. Such a board state must be valid, or else the constructor
 will die with an appropriate error message.
+
+If C<id> is specified, C<board> should not be specified and will be ignored.
 
 =cut
 
@@ -93,6 +112,39 @@ will die with an appropriate error message.
 
 
 =head1 ATTRIBUTES
+
+=head2 context
+
+The Catalyst context against which operations in this game are being
+performed. This context is used to access the data model.
+
+This attribute is read-only, but it may be inialized as a Moose
+attribute during construction or by passing C<$c> into the contructor
+as the first parameter.
+
+=cut
+
+has context => (
+    is => 'ro',
+);
+
+
+=head2 id
+
+The id of the game.
+
+Each game has a unique ID, assigned by the data model.
+
+This attribute is read-only. If it is specified as a Moose
+initializer, then the game state is fetched from the data model during
+initialization.
+
+=cut
+
+has id => (
+    is => 'ro',
+);
+
 
 =head2 board
 
@@ -112,7 +164,6 @@ However, normally this will be modified only by the L</move> method.
 
 has board => (
     is => 'rw',
-    default => sub { [ (' ') x 9 ] },
 );
 
 
@@ -120,11 +171,30 @@ around BUILDARGS => sub {
     my $orig  = shift;
     my $class = shift;
 
+    my $c = ( blessed( $_[0] ) && $_[0]->isa('Catalyst') ) ? shift : undef;
+
     my $args = $class->$orig(@_);
 
     if (exists $args->{board}) {
         my $error_message = _is_invalid_board($args->{board});
         croak "'board': $error_message" if $error_message;
+    } else {
+        $args->{board} = [ (' ') x 9 ];
+    }
+
+    # Synch $c and $args->{context}, because the former is used to
+    # initialize the context attribute, and the latter is used in the
+    # code below as a shorthand.
+    $args->{context} = $c unless defined $args->{context};
+    $c = $args->{context};
+
+    if ( defined $c ) {
+        my $game_rs = $c->model('DB::Game');
+        my $game_row = $game_rs->create({
+            board => $args->{board},
+        });
+        $args->{id} = $game_row->id;
+        $args->{_game_row} = $game_row;
     }
 
     return $args;

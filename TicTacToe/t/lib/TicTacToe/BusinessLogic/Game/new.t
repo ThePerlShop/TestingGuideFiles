@@ -18,6 +18,10 @@ use Test::Most;
 use Carp::Always;
 use Data::Dumper;
 
+use Carp qw(croak);
+use TicTacToe::Test::IDs;
+use Test::MockObject;
+
 use t::lib::TicTacToe::BusinessLogic::Game::BoardConfigs qw(:invalid);
 
 
@@ -42,19 +46,118 @@ L<TicTacToe::BusinessLogic::Game>.
 =cut
 
 
+## Private methods
+
+# Create a new game DBIC row object.
+# This is actually a fake object, and not an actual DBIC object.
+# If passed an id as $col_data->{id}, load the row with that id.
+# Otherwise, create a new object that can be inserted with insert().
+# Uses $test->{id_generator} to generate new row IDs.
+sub _new_game_row {
+    my $test = shift;
+    my ($col_data) = @_;
+    $col_data //= {};
+
+    state %game_rows; # stored by id
+
+    my %obj_data = %$col_data; # shallow copy
+    if ( exists $obj_data{id} ) {
+        my $id = $obj_data{id};
+        die "id $id not in storage" unless exists $game_rows{$id};
+        %obj_data = $game_rows{$id}->%*;
+    }
+
+    my $row = Test::MockObject->new( \%obj_data );
+
+    $row->mock( id => sub { $_[0]->{id} } );
+    $row->mock( board => sub { $_[0]->{board} } );
+
+    $row->mock( insert => sub {
+        my $self = shift;
+        my $id = $test->{id_generator}->next();
+        $self->{id} = $id;
+        $game_rows{$id} = {%$self};
+        return $self;
+    } );
+
+    return $row;
+}
+
+# Create a new game DBIC resultset object.
+# This is actually a fake object, and not an actual DBIC object.
+sub _new_game_rs {
+    my $test = shift;
+
+    my $game_rs = Test::MockObject->new();
+
+    $game_rs->mock( find => sub {
+        my $rs = shift;
+        my ($col_data) = @_;
+        return $test->_new_game_row($col_data)
+          if exists $col_data->{id};
+        return (undef);
+    } );
+
+    $game_rs->mock( create => sub {
+        my $rs = shift;
+        my ($col_data) = @_;
+        return $test->_new_game_row($col_data)->insert();
+    } );
+
+    return $game_rs;
+}
+
+# Create a new Catalyst context.
+# This is actually a fake object, not an actual Catalyst object.
+# The context returns $test->{game_rs} as the 'DB::Game' model.
+sub _new_context {
+    my $test = shift;
+
+    my $context = Test::MockObject->new();
+
+    $context->set_isa('Catalyst');
+
+    $context->mock( model => sub {
+        my $c = shift;
+        my ( $name, @args ) = @_;
+        return $test->{game_rs} if $name eq 'DB::Game';
+        return (undef);
+    } );
+
+    return $context;
+}
+
+# Set up the Catalyst context for unit testing.
+# The context object is stored in $test->{context}.
+# This also sets up a shared game DBIC resultset, stored in $test->{game_rs}.
+# Row IDs are set via an ID generator, stored in $test->{id_generator}.
+sub _setup_context : Test(setup) {
+    my $test = shift;
+    $test->{id_generator} = TicTacToe::Test::IDs->new();
+    $test->{game_rs} = $test->_new_game_rs();
+    $test->{context} = $test->_new_context();
+}
+
+
 =head1 TESTS
 
 =head2 test_basic_construction
 
 Instantiates a new C<TicTacToe::BusinessLogic::Game> object, and
-verifies that constructor succeeds.
+verifies that constructor succeeds, that it generates a new row, and
+that the constructed object has the expected C<id>.
 
 =cut
 
-sub test_basic_construction : Test(1) {
+sub test_basic_construction : Test(3) {
     my $test = shift;
 
-    ok( TicTacToe::BusinessLogic::Game->new() );
+    ok( my $game = TicTacToe::BusinessLogic::Game->new( $test->{context} ) );
+
+    my $all_ids = $test->{id_generator}->all_ids;
+    is(scalar(@$all_ids), 1, 'one row generated');
+
+    cmp_deeply( [$game->id], $all_ids, 'ID as expected' );
 }
 
 

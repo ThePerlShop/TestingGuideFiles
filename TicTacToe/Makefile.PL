@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 # IMPORTANT: if you delete this file your app will not work as
 # expected.  You have been warned.
+## no critic
 use inc::Module::Install 1.02;
 use Module::Install::Catalyst; # Complain loudly if you don't have
                                # Catalyst::Devel installed or haven't said
@@ -22,6 +23,7 @@ test_requires 'Readonly';
 test_requires 'Test::Class';
 test_requires 'Test::More' => '0.88';
 test_requires 'Test::Most';
+test_requires 'Test::MockObject';
 
 catalyst;
 
