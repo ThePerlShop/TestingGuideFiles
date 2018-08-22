@@ -21,7 +21,7 @@ use Test::Most;
 use Carp::Always;
 use Data::Dumper;
 
-use t::lib::TicTacToe::BusinessLogic::Game::BoardConfigs qw(:invalid);
+use t::lib::TicTacToe::BusinessLogic::Game::BoardConfigs qw(@BOARD_XO :invalid);
 
 
 # load code to be tested
@@ -50,10 +50,10 @@ L<TicTacToe::BusinessLogic::Game>.
 
 =head1 TESTS
 
-=head2 test_basic_construction
+=head2 test_new_game
 
-Instantiates a new C<TicTacToe::BusinessLogic::Game> object with , and
-verifies several conditions:
+Instantiates a new C<TicTacToe::BusinessLogic::Game> object with a
+context, and verifies several conditions:
 
 =over
 
@@ -70,13 +70,13 @@ record stored).
 
 =cut
 
-sub test_basic_construction : Test(4) {
+sub test_new_game : Test(4) {
     my $test = shift;
 
     ok( my $game = TicTacToe::BusinessLogic::Game->new( $test->{context} ) );
 
     my $all_ids = $test->{id_generator}->all_ids;
-    is(scalar(@$all_ids), 1, 'one row generated');
+    is( scalar(@$all_ids), 1, 'one row generated' );
 
     my $id = $all_ids->[0];
     is( $game->id, $id, 'ID as expected' );
@@ -90,7 +90,38 @@ sub test_basic_construction : Test(4) {
             },
         },
         'game record stored',
+    ) or note(Data::Dumper->Dump([$test->{game_rows}], ['game_rows']));
+}
+
+
+=head2 test_existing_game
+
+Instantiates a new C<TicTacToe::BusinessLogic::Game> object with a
+context and the ID of a game state that has already been created in
+the data model, and verifies that the game is properly initialized
+from the data model.
+
+=cut
+
+sub test_existing_game : Test(1) {
+    my $test = shift;
+
+    my $game_row = $test->{game_rs}->create( { board => \@BOARD_XO } );
+    my $id = $game_row->id;
+
+    my $game = TicTacToe::BusinessLogic::Game->new(
+        $test->{context},
+        id => $id,
     );
+
+    cmp_deeply(
+        $game,
+        methods(
+            id => $id,
+            board => \@BOARD_XO,
+        ),
+        'game record retrieved',
+    ) or note(Data::Dumper->Dump([$game], ['game']));
 }
 
 

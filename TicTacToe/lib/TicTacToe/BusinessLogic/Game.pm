@@ -190,10 +190,16 @@ around BUILDARGS => sub {
 
     if ( defined $c ) {
         my $game_rs = $c->model('DB::Game');
-        my $game_row = $game_rs->create({
-            board => $args->{board},
-        });
-        $args->{id} = $game_row->id;
+        my $game_row;
+        if ( exists $args->{id} ) {
+            $game_row = $game_rs->find( { id => $args->{id} } );
+            $args->{board} = $game_row->board;
+        } else {
+            $game_row = $game_rs->create({
+                board => $args->{board},
+            });
+            $args->{id} = $game_row->id;
+        }
         $args->{_game_row} = $game_row;
     }
 
