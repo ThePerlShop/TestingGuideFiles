@@ -264,6 +264,9 @@ sub move {
         unless $piece eq $next_player;
 
     $board->[$location] = $piece;
+
+    my $game_row = $self->_game_row;
+    $game_row->update( { board => $self->board } ) if $game_row;
 }
 
 

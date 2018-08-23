@@ -21,7 +21,7 @@ use Test::Most;
 use Carp::Always;
 use Data::Dumper;
 
-use t::lib::TicTacToe::BusinessLogic::Game::BoardConfigs qw(@BOARD_XO);
+use t::lib::TicTacToe::BusinessLogic::Game::BoardConfigs qw(@BOARD_X @BOARD_XO);
 
 
 # load code to be tested
@@ -120,6 +120,38 @@ sub test_existing_game : Test(1) {
         ),
         'game record retrieved',
     ) or note(Data::Dumper->Dump([$game], ['game']));
+}
+
+
+=head2 test_move_persists_game
+
+Instantiates a new C<TicTacToe::BusinessLogic::Game> object with a
+context, moves X to location 0, and verifies that the game data was
+written to the database.
+
+=cut
+
+sub test_move_persists_game : Test(2) {
+    my $test = shift;
+
+    my $game = TicTacToe::BusinessLogic::Game->new( $test->{context} );
+    $game->move('X', 0);
+
+    my $all_ids = $test->{id_generator}->all_ids;
+    is( scalar(@$all_ids), 1, 'one row generated' );
+
+    my $id = $all_ids->[0];
+
+    cmp_deeply(
+        $test->{game_rows},
+        {
+            $id => {
+                id => $id,
+                board => \@BOARD_X,
+            },
+        },
+        'game move stored',
+    ) or note(Data::Dumper->Dump([$test->{game_rows}], ['game_rows']));
 }
 
 

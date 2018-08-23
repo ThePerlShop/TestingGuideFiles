@@ -123,6 +123,19 @@ sub _new_game_row {
         return $self;
     } );
 
+    $row->mock( update => sub {
+        my $self = shift;
+        my ($new_col_data) = @_;
+        $new_col_data //= {};
+        croak "updating id is an invalid operation" if exists $new_col_data->{id};
+        my $id = $self->{id};
+        my $game_rows = $test->{game_rows};
+        croak "id $id not in storage" unless exists $game_rows->{$id};
+        $self->{board} = $new_col_data->{board};
+        $test->{game_rows}->{$id} = _clone_game_data($self);
+        return $self;
+    } );
+
     return $row;
 }
 
